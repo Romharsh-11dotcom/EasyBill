@@ -39,6 +39,7 @@ th { background-color: #3498db; color: white; }
 <input type="text" id="companyPAN" placeholder="Company PAN">
 <button id="saveCompanyBtn">Save Company</button>
 </section>
+
 <section id="customer">
 <h2>Add Customer</h2>
 <input type="text" id="customerName" placeholder="Customer Name">
@@ -49,13 +50,16 @@ th { background-color: #3498db; color: white; }
 <button id="addCustomerBtn">Add Customer</button>
 <table id="customersTable"><tr><th>Customer Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr></table>
 </section>
+
 <section id="products">
 <h2>Product List</h2>
 <input type="text" id="productName" placeholder="Product Name">
 <input type="number" id="productPrice" placeholder="Unit Price">
+<input type="date" id="productExpiry" placeholder="Expiry Date">
 <button id="addProductBtn">Add Product</button>
-<table id="productsTable"><tr><th>Product Name</th><th>Unit Price</th><th>Action</th></tr></table>
+<table id="productsTable"><tr><th>Product Name</th><th>Unit Price</th><th>Expiry Date</th><th>Action</th></tr></table>
 </section>
+
 <section id="invoice">
 <h2>New Invoice</h2>
 <select id="invoiceCustomer"></select>
@@ -65,13 +69,15 @@ th { background-color: #3498db; color: white; }
 <select id="invoiceProduct"></select>
 <input type="number" id="invoiceQty" placeholder="Quantity">
 <button id="addInvoiceItemBtn">Add Item</button>
-<table id="invoiceItems"><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Action</th></tr></table>
+<table id="invoiceItems"><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th><th>Action</th></tr></table>
 <button id="saveInvoiceBtn">Save Invoice</button>
 </section>
+
 <section id="viewInvoices">
 <h2>Saved Invoices</h2>
 <div id="invoicesContainer"></div>
 </section>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 let customers = JSON.parse(localStorage.getItem('customers') || '[]');
@@ -119,7 +125,7 @@ customers.forEach(c => { const option = document.createElement('option'); option
 function updateCustomerList(){
 const table = document.getElementById('customersTable');
 table.innerHTML = '<tr><th>Customer Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr>';
-customers.forEach((c, index) => {
+customers.forEach((c,index)=>{
 const row = table.insertRow();
 row.insertCell(0).innerText = c.name;
 row.insertCell(1).innerText = c.phone;
@@ -130,7 +136,7 @@ const actionCell = row.insertCell(5);
 const delBtn = document.createElement('button');
 delBtn.innerText = 'Delete';
 delBtn.className = 'delete-btn';
-delBtn.addEventListener('click', () => { customers.splice(index,1); saveData(); updateCustomerList(); updateCustomerDropdown(); });
+delBtn.addEventListener('click',()=>{ customers.splice(index,1); saveData(); updateCustomerList(); updateCustomerDropdown(); });
 actionCell.appendChild(delBtn);
 });
 }
@@ -138,8 +144,10 @@ actionCell.appendChild(delBtn);
 function addProduct(){
 const name = document.getElementById('productName').value.trim();
 const price = parseFloat(document.getElementById('productPrice').value);
-if(!name || isNaN(price)){alert('Valid product name and price required'); return;}
-products.push({name, price}); saveData(); updateProductList(); updateProductDropdown(); alert('Product Added!');
+const expiry = document.getElementById('productExpiry').value;
+if(!name || isNaN(price)){ alert('Valid product name and price required'); return; }
+products.push({name, price, expiry});
+saveData(); updateProductList(); updateProductDropdown(); alert('Product Added!');
 }
 
 function updateProductDropdown(){
@@ -150,39 +158,85 @@ products.forEach(p => { const option = document.createElement('option'); option.
 
 function updateProductList(){
 const table = document.getElementById('productsTable');
-table.innerHTML = '<tr><th>Product Name</th><th>Unit Price</th><th>Action</th></tr>';
-products.forEach((p, index) => {
+table.innerHTML = '<tr><th>Product Name</th><th>Unit Price</th><th>Expiry Date</th><th>Action</th></tr>';
+products.forEach((p,index)=>{
 const row = table.insertRow();
 row.insertCell(0).innerText = p.name;
 row.insertCell(1).innerText = p.price.toFixed(2);
-const actionCell = row.insertCell(2);
+row.insertCell(2).innerText = p.expiry || '';
+const actionCell = row.insertCell(3);
 const delBtn = document.createElement('button');
 delBtn.innerText = 'Delete';
 delBtn.className = 'delete-btn';
-delBtn.addEventListener('click', () => { products.splice(index,1); saveData(); updateProductList(); updateProductDropdown(); });
+delBtn.addEventListener('click',()=>{ products.splice(index,1); saveData(); updateProductList(); updateProductDropdown(); });
 actionCell.appendChild(delBtn);
 });
+}
+
+function addInvoiceItem(){
+const prodName = document.getElementById('invoiceProduct').value;
+const qty = parseFloat(document.getElementById('invoiceQty').value);
+if(!prodName || isNaN(qty) || qty <= 0){ alert('Select product and valid quantity'); return; }
+const product = products.find(p => p.name === prodName);
+invoiceItems.push({name: product.name, qty, price: product.price, expiry: product.expiry});
+updateInvoiceItemsTable();
+}
+
+function updateInvoiceItemsTable(){
+const table = document.getElementById('invoiceItems');
+table.innerHTML = '<tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th><th>Action</th></tr>';
+invoiceItems.forEach((it,index)=>{
+const row = table.insertRow();
+row.insertCell(0).innerText = it.name;
+row.insertCell(1).innerText = it.qty;
+row.insertCell(2).innerText = it.price.toFixed(2);
+row.insertCell(3).innerText = (it.qty*it.price).toFixed(2);
+row.insertCell(4).innerText = it.expiry || '';
+const actionCell = row.insertCell(5);
+const delBtn = document.createElement('button');
+delBtn.innerText = 'Delete';
+delBtn.className = 'delete-btn';
+delBtn.addEventListener('click',()=>{ invoiceItems.splice(index,1); updateInvoiceItemsTable(); });
+actionCell.appendChild(delBtn);
+});
+}
+
+function saveInvoice(){
+const custIndex = document.getElementById('invoiceCustomer').selectedIndex;
+if(custIndex < 0){ alert('Select customer'); return; }
+if(invoiceItems.length === 0){ alert('Add invoice items'); return; }
+const discount = parseFloat(document.getElementById('invoiceDiscount').value) || 0;
+const vat = document.getElementById('enableVAT').checked;
+const total = invoiceItems.reduce((sum,it)=>sum+it.qty*it.price,0)*(1-discount/100)*(vat?1.13:1);
+const inv = {customer: customers[custIndex], items: invoiceItems.slice(), discount, vat, total, date: new Date()};
+invoices.push(inv); saveData(); invoiceItems=[]; updateInvoiceItemsTable(); renderInvoices(); alert('Invoice saved!');
 }
 
 function renderInvoices(){
 const container = document.getElementById('invoicesContainer');
 container.innerHTML = '';
-invoices.forEach((inv, index) => {
+invoices.forEach((inv,index)=>{
 const div = document.createElement('div');
 div.className = 'invoice-card';
 let itemsHtml = '';
-inv.items.forEach(it => { itemsHtml += `<tr><td>${it.name}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${(it.qty*it.price).toFixed(2)}</td></tr>`; });
-
-const downloadBtnId = 'downloadBtn' + index;
-const deleteBtnId = 'deleteBtn' + index;
-const printBtnId = 'printBtn' + index;
-
+inv.items.forEach(it => {
+itemsHtml += `<tr>
+<td>${it.name}</td>
+<td>${it.qty}</td>
+<td>${it.price.toFixed(2)}</td>
+<td>${(it.qty*it.price).toFixed(2)}</td>
+<td>${it.expiry || ''}</td>
+</tr>`;
+});
+const downloadBtnId = 'downloadBtn'+index;
+const deleteBtnId = 'deleteBtn'+index;
+const printBtnId = 'printBtn'+index;
 div.innerHTML = `
 <h3>${company.name || 'Company'} - Invoice #${index+1}</h3>
 <p>Company Address: ${company.address || ''} | PAN: ${company.pan || ''}</p>
 <p>Customer: ${inv.customer.name} | Phone: ${inv.customer.phone} | Email: ${inv.customer.email} | Address: ${inv.customer.address} | PAN: ${inv.customer.pan}</p>
 <p>Date: ${new Date(inv.date).toLocaleString()}</p>
-<table class='invoice-items-table'><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>${itemsHtml}</table>
+<table class='invoice-items-table'><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th></tr>${itemsHtml}</table>
 <p>Discount: ${inv.discount}%</p>
 <p>VAT: ${inv.vat ? 'Applied' : 'Not applied'}</p>
 <p>Total: ${inv.total.toFixed(2)}</p>
@@ -192,96 +246,30 @@ div.innerHTML = `
 `;
 container.appendChild(div);
 
-// Download
-div.querySelector('#' + downloadBtnId).addEventListener('click', () => {
-const downloadBtn = div.querySelector('#' + downloadBtnId);
-const deleteBtn = div.querySelector('#' + deleteBtnId);
-const printBtn = div.querySelector('#' + printBtnId);
-downloadBtn.style.display = 'none';
-deleteBtn.style.display = 'none';
-printBtn.style.display = 'none';
-html2canvas(div).then(canvas => {
+// Download as image
+div.querySelector('#'+downloadBtnId).addEventListener('click',()=>{
+const btns = div.querySelectorAll('button'); btns.forEach(b => b.style.display='none');
+html2canvas(div).then(canvas=>{
 const link = document.createElement('a');
 link.download = `Invoice_${index+1}.png`;
 link.href = canvas.toDataURL();
 link.click();
-downloadBtn.style.display = 'inline-block';
-deleteBtn.style.display = 'inline-block';
-printBtn.style.display = 'inline-block';
+btns.forEach(b => b.style.display='inline-block');
 });
 });
 
-// Delete
-div.querySelector('#' + deleteBtnId).addEventListener('click', () => {
+// Print invoice
+div.querySelector('#'+printBtnId).addEventListener('click',()=>{
+const btns = div.querySelectorAll('button'); btns.forEach(b => b.style.display='none');
+window.print();
+btns.forEach(b => b.style.display='inline-block');
+});
+
+// Delete invoice
+div.querySelector('#'+deleteBtnId).addEventListener('click',()=>{
 invoices.splice(index,1); saveData(); renderInvoices();
 });
-
-// Print
-div.querySelector('#' + printBtnId).addEventListener('click', () => {
-const printBtn = div.querySelector('#' + printBtnId);
-const downloadBtn = div.querySelector('#' + downloadBtnId);
-const deleteBtn = div.querySelector('#' + deleteBtnId);
-
-// Hide buttons during print
-printBtn.style.display = 'none';
-downloadBtn.style.display = 'none';
-deleteBtn.style.display = 'none';
-
-const printWindow = window.open('', '', 'width=800,height=600');
-printWindow.document.write(`<html><head><title>Invoice #${index+1}</title>`);
-printWindow.document.write('<style>body{font-family:Roboto,sans-serif;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ccc;padding:5px;text-align:center;} th{background-color:#3498db;color:white;}</style>');
-printWindow.document.write('</head><body>');
-printWindow.document.write(div.innerHTML);
-printWindow.document.write('</body></html>');
-printWindow.document.close();
-printWindow.focus();
-printWindow.print();
-printWindow.close();
-
-// Show buttons back after print
-printBtn.style.display = 'inline-block';
-downloadBtn.style.display = 'inline-block';
-deleteBtn.style.display = 'inline-block';
 });
-});
-}
-
-function addInvoiceItem(){
-const prodName = document.getElementById('invoiceProduct').value;
-const qty = parseFloat(document.getElementById('invoiceQty').value);
-if(!prodName || isNaN(qty) || qty <= 0){alert('Select product and valid quantity'); return;}
-const product = products.find(p => p.name === prodName);
-invoiceItems.push({name: product.name, qty, price: product.price});
-updateInvoiceItemsTable();
-}
-
-function updateInvoiceItemsTable(){
-const table = document.getElementById('invoiceItems');
-table.innerHTML = '<tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Action</th></tr>';
-invoiceItems.forEach((it, index) => {
-const row = table.insertRow();
-row.insertCell(0).innerText = it.name;
-row.insertCell(1).innerText = it.qty;
-row.insertCell(2).innerText = it.price.toFixed(2);
-row.insertCell(3).innerText = (it.qty*it.price).toFixed(2);
-const actionCell = row.insertCell(4);
-const delBtn = document.createElement('button');
-delBtn.innerText = 'Delete';
-delBtn.className = 'delete-btn';
-delBtn.addEventListener('click', () => { invoiceItems.splice(index,1); updateInvoiceItemsTable(); });
-actionCell.appendChild(delBtn);
-});
-}
-
-function saveInvoice(){
-const custIndex = document.getElementById('invoiceCustomer').selectedIndex;
-if(custIndex < 0){alert('Select customer'); return;}
-if(invoiceItems.length === 0){alert('Add invoice items'); return;}
-const discount = parseFloat(document.getElementById('invoiceDiscount').value) || 0;
-const vat = document.getElementById('enableVAT').checked;
-const total = invoiceItems.reduce((sum,it)=>sum+it.qty*it.price,0)*(1-discount/100)*(vat?1.13:1);
-const inv = {customer: customers[custIndex], items: invoiceItems.slice(), discount, vat, total, date: new Date()};
-invoices.push(inv); saveData(); invoiceItems=[]; updateInvoiceItemsTable(); renderInvoices(); alert('Invoice saved!');
 }
 
 // Initialize
