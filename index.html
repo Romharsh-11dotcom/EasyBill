@@ -69,7 +69,9 @@ th { background-color: #3498db; color: white; }
 <select id="invoiceProduct"></select>
 <input type="number" id="invoiceQty" placeholder="Quantity">
 <button id="addInvoiceItemBtn">Add Item</button>
-<table id="invoiceItems"><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th><th>Action</th></tr></table>
+<table id="invoiceItems">
+<tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th><th>Action</th></tr>
+</table>
 <button id="saveInvoiceBtn">Save Invoice</button>
 </section>
 
@@ -184,15 +186,16 @@ updateInvoiceItemsTable();
 
 function updateInvoiceItemsTable(){
 const table = document.getElementById('invoiceItems');
-table.innerHTML = '<tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th><th>Action</th></tr>';
+table.innerHTML = '<tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th><th>Action</th></tr>';
 invoiceItems.forEach((it,index)=>{
 const row = table.insertRow();
-row.insertCell(0).innerText = it.name;
-row.insertCell(1).innerText = it.qty;
-row.insertCell(2).innerText = it.price.toFixed(2);
-row.insertCell(3).innerText = (it.qty*it.price).toFixed(2);
-row.insertCell(4).innerText = it.expiry || '';
-const actionCell = row.insertCell(5);
+row.insertCell(0).innerText = index+1;
+row.insertCell(1).innerText = it.name;
+row.insertCell(2).innerText = it.qty;
+row.insertCell(3).innerText = it.price.toFixed(2);
+row.insertCell(4).innerText = (it.qty*it.price).toFixed(2);
+row.insertCell(5).innerText = it.expiry || '';
+const actionCell = row.insertCell(6);
 const delBtn = document.createElement('button');
 delBtn.innerText = 'Delete';
 delBtn.className = 'delete-btn';
@@ -205,7 +208,7 @@ function saveInvoice(){
 const custIndex = document.getElementById('invoiceCustomer').selectedIndex;
 if(custIndex < 0){ alert('Select customer'); return; }
 if(invoiceItems.length === 0){ alert('Add invoice items'); return; }
-const discount = parseFloat(document.getElementById('invoiceDiscount').value) || 0;
+const discount = parseFloat(document.getElementById('invoiceDiscount').value)||0;
 const vat = document.getElementById('enableVAT').checked;
 const total = invoiceItems.reduce((sum,it)=>sum+it.qty*it.price,0)*(1-discount/100)*(vat?1.13:1);
 const inv = {customer: customers[custIndex], items: invoiceItems.slice(), discount, vat, total, date: new Date()};
@@ -216,11 +219,11 @@ function renderInvoices(){
 const container = document.getElementById('invoicesContainer');
 container.innerHTML = '';
 invoices.forEach((inv,index)=>{
-const div = document.createElement('div');
-div.className = 'invoice-card';
+const div = document.createElement('div'); div.className = 'invoice-card';
 let itemsHtml = '';
-inv.items.forEach(it => {
+inv.items.forEach((it,i)=>{
 itemsHtml += `<tr>
+<td>${i+1}</td>
 <td>${it.name}</td>
 <td>${it.qty}</td>
 <td>${it.price.toFixed(2)}</td>
@@ -231,38 +234,41 @@ itemsHtml += `<tr>
 const downloadBtnId = 'downloadBtn'+index;
 const deleteBtnId = 'deleteBtn'+index;
 const printBtnId = 'printBtn'+index;
-div.innerHTML = `
-<h3>${company.name || 'Company'} - Invoice #${index+1}</h3>
-<p>Company Address: ${company.address || ''} | PAN: ${company.pan || ''}</p>
+
+div.innerHTML = `<h3>${company.name||'Company'} - Invoice #${index+1}</h3>
+<p>Company Address: ${company.address||''} | PAN: ${company.pan||''}</p>
 <p>Customer: ${inv.customer.name} | Phone: ${inv.customer.phone} | Email: ${inv.customer.email} | Address: ${inv.customer.address} | PAN: ${inv.customer.pan}</p>
 <p>Date: ${new Date(inv.date).toLocaleString()}</p>
-<table class='invoice-items-table'><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th></tr>${itemsHtml}</table>
+<table class='invoice-items-table'>
+<tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Expiry Date</th></tr>
+${itemsHtml}
+</table>
 <p>Discount: ${inv.discount}%</p>
 <p>VAT: ${inv.vat ? 'Applied' : 'Not applied'}</p>
 <p>Total: ${inv.total.toFixed(2)}</p>
 <button class='download-btn' id='${downloadBtnId}'>Download as Image</button>
 <button class='delete-btn' id='${deleteBtnId}'>Delete Invoice</button>
-<button class='download-btn' id='${printBtnId}'>Print Invoice</button>
-`;
+<button class='download-btn' id='${printBtnId}'>Print Invoice</button>`;
+
 container.appendChild(div);
 
 // Download as image
 div.querySelector('#'+downloadBtnId).addEventListener('click',()=>{
-const btns = div.querySelectorAll('button'); btns.forEach(b => b.style.display='none');
+const btns = div.querySelectorAll('button'); btns.forEach(b=>b.style.display='none');
 html2canvas(div).then(canvas=>{
 const link = document.createElement('a');
 link.download = `Invoice_${index+1}.png`;
 link.href = canvas.toDataURL();
 link.click();
-btns.forEach(b => b.style.display='inline-block');
+btns.forEach(b=>b.style.display='inline-block');
 });
 });
 
 // Print invoice
 div.querySelector('#'+printBtnId).addEventListener('click',()=>{
-const btns = div.querySelectorAll('button'); btns.forEach(b => b.style.display='none');
+const btns = div.querySelectorAll('button'); btns.forEach(b=>b.style.display='none');
 window.print();
-btns.forEach(b => b.style.display='inline-block');
+btns.forEach(b=>b.style.display='inline-block');
 });
 
 // Delete invoice
