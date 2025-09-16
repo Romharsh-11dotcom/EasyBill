@@ -3,292 +3,308 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Billing Software Web</title>
+<title>Wholesale Billing Software</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-body { font-family: 'Roboto', sans-serif; background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%); margin: 0; padding: 0; }
-header { background-color: #34495e; color: #ecf0f1; padding: 20px; text-align: center; font-size: 26px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-main { padding: 20px; }
-section { margin-bottom: 30px; background-color: rgba(255,255,255,0.95); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-input, select, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
-input:focus, select:focus { border-color: #3498db; outline: none; box-shadow: 0 0 5px rgba(52,152,219,0.5); }
-button { background-color: #3498db; color: white; cursor: pointer; border: none; font-weight: bold; transition: background 0.3s; }
-button:hover { background-color: #2980b9; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-th { background-color: #3498db; color: white; }
-.delete-btn { background-color: #e74c3c; margin-left: 5px; }
-.delete-btn:hover { background-color: #c0392b; }
-.download-btn { background-color: #2ecc71; margin-left: 5px; }
-.download-btn:hover { background-color: #27ae60; }
-.invoice-card { background: #fff; border-radius: 10px; padding: 15px; margin: 10px 0; box-shadow: 0 3px 10px rgba(0,0,0,0.2); position: relative; }
-.invoice-items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.invoice-items-table th, .invoice-items-table td { border: 1px solid #ccc; padding: 5px; text-align: center; }
-.invoice-items-table th { background-color: #3498db; color: white; }
-.low-stock { background-color: #ffeaa7; }
-.expired { background-color: #fab1a0; color: #d63031; font-weight: bold; }
+body { font-family: 'Roboto', sans-serif; margin:0; padding:0; background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%); }
+header { background-color:#34495e; color:white; padding:15px; text-align:center; font-size:26px; }
+.navbar { display:flex; justify-content:center; gap:10px; background:#2c3e50; padding:10px; }
+.navbar button { padding:8px 12px; border:none; border-radius:5px; cursor:pointer; background:#3498db; color:white; font-weight:bold; }
+.navbar button:hover { background:#2980b9; }
+section { display:none; padding:20px; max-width:900px; margin:20px auto; background:rgba(255,255,255,0.95); border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+input, select, button { padding:8px; margin:5px 0; width:100%; border-radius:8px; border:1px solid #ccc; font-size:14px; }
+input:focus, select:focus { border-color:#3498db; outline:none; box-shadow:0 0 5px rgba(52,152,219,0.5); }
+button { background:#3498db; color:white; cursor:pointer; border:none; font-weight:bold; transition:0.3s; }
+button:hover { background:#2980b9; }
+table { width:100%; border-collapse: collapse; margin-top:10px; font-size:14px; }
+th, td { border:1px solid #ccc; padding:10px; text-align:center; }
+th { background:#3498db; color:white; }
+.delete-btn { background:#e74c3c; margin-left:5px; }
+.delete-btn:hover { background:#c0392b; }
+.download-btn { background:#2ecc71; margin-left:5px; }
+.download-btn:hover { background:#27ae60; }
+.print-btn { background:#f39c12; margin-left:5px; }
+.print-btn:hover { background:#d35400; }
+.expired { background:#ffcccc; }
+.invoice-card { background:#fff; border-radius:10px; padding:15px; margin:10px 0; box-shadow:0 3px 10px rgba(0,0,0,0.2); position:relative; }
+.invoice-items-table th, .invoice-items-table td { border:1px solid #ccc; padding:5px; text-align:center; }
 </style>
 </head>
 <body>
-<header>Billing Software</header>
-<main>
+
+<header>Wholesale Billing Software</header>
+<div class="navbar">
+<button onclick="showSection('company')">🏢 Company</button>
+<button onclick="showSection('products')">📦 Products</button>
+<button onclick="showSection('customers')">👥 Customers</button>
+<button onclick="showSection('invoice')">🧾 New Invoice</button>
+<button onclick="showSection('invoicesList')">📑 Saved Invoices</button>
+</div>
+
+<!-- Company Section -->
 <section id="company">
 <h2>Register Company</h2>
 <input type="text" id="companyName" placeholder="Company Name">
 <input type="text" id="companyAddress" placeholder="Company Address">
 <input type="text" id="companyPAN" placeholder="Company PAN">
-<button id="saveCompanyBtn">Save Company</button>
+<button onclick="registerCompany()">Save Company</button>
 </section>
 
-<section id="customer">
+<!-- Products Section -->
+<section id="products">
+<h2>Product / Stock Management</h2>
+<input type="text" id="productName" placeholder="Product Name">
+<input type="number" id="productPrice" placeholder="Unit Price">
+<input type="date" id="productExpiry" placeholder="Expiry Date">
+<input type="number" id="productStock" placeholder="Total Stock">
+<button onclick="addProduct()">Add Product</button>
+<table id="productsTable">
+<tr><th>Name</th><th>Price</th><th>Expiry</th><th>Stock</th><th>Action</th></tr>
+</table>
+</section>
+
+<!-- Customers Section -->
+<section id="customers">
 <h2>Add Customer</h2>
 <input type="text" id="customerName" placeholder="Customer Name">
 <input type="text" id="customerPhone" placeholder="Phone">
 <input type="email" id="customerEmail" placeholder="Email">
 <input type="text" id="customerAddress" placeholder="Address">
 <input type="text" id="customerPAN" placeholder="PAN Number">
-<button id="addCustomerBtn">Add Customer</button>
-<table id="customersTable"><tr><th>Customer Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr></table>
+<button onclick="addCustomer()">Add Customer</button>
+<table id="customersTable">
+<tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr>
+</table>
 </section>
 
-<section id="products">
-<h2>Product List</h2>
-<input type="text" id="productName" placeholder="Product Name">
-<input type="number" id="productPrice" placeholder="Unit Price">
-<input type="number" id="productStock" placeholder="Stock Quantity">
-<input type="date" id="productExpiry" placeholder="Expiry Date">
-<button id="addProductBtn">Add Product</button>
-<table id="productsTable"><tr><th>Product Name</th><th>Unit Price</th><th>Stock</th><th>Expiry</th><th>Action</th></tr></table>
-</section>
-
+<!-- New Invoice Section -->
 <section id="invoice">
-<h2>New Invoice</h2>
+<h2>Create New Invoice</h2>
 <select id="invoiceCustomer"></select>
 <label><input type="checkbox" id="enableDiscount" checked> Enable Discount</label>
 <label>Discount (%): <input type="number" id="invoiceDiscount" value="0"></label>
 <label><input type="checkbox" id="enableVAT" checked> Enable VAT</label>
 <select id="invoiceProduct"></select>
+<span id="productStockInfo"></span>
 <input type="number" id="invoiceQty" placeholder="Quantity">
-<button id="addInvoiceItemBtn">Add Item</button>
-<table id="invoiceItems"><tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Action</th></tr></table>
-<button id="saveInvoiceBtn">Save Invoice</button>
+<button onclick="addInvoiceItem()">Add Item</button>
+<table id="invoiceItems">
+<tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Action</th></tr>
+</table>
+<button onclick="saveInvoice()">Save Invoice</button>
 </section>
 
-<section id="viewInvoices">
+<!-- Saved Invoices Section -->
+<section id="invoicesList">
 <h2>Saved Invoices</h2>
 <div id="invoicesContainer"></div>
 </section>
 
+<!-- View Invoice Section -->
+<section id="viewInvoice">
+<h2>Invoice Details</h2>
+<div id="viewInvoiceContent"></div>
+<button onclick="printInvoice()">🖨 Print Invoice</button>
+<button onclick="backToInvoices()">⬅ Back to List</button>
+</section>
+
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
-let customers=JSON.parse(localStorage.getItem('customers')||'[]');
-let products=JSON.parse(localStorage.getItem('products')||'[]');
-let invoices=JSON.parse(localStorage.getItem('invoices')||'[]');
-let company=JSON.parse(localStorage.getItem('company')||'{}');
-let invoiceItems=[];
+let customers = JSON.parse(localStorage.getItem('customers') || '[]');
+let products = JSON.parse(localStorage.getItem('products') || '[]');
+let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+let company = JSON.parse(localStorage.getItem('company') || '{}');
+let invoiceItems = [];
+let currentInvoiceId = null;
 
 function saveData(){
-localStorage.setItem('customers',JSON.stringify(customers));
-localStorage.setItem('products',JSON.stringify(products));
-localStorage.setItem('invoices',JSON.stringify(invoices));
-localStorage.setItem('company',JSON.stringify(company));
+localStorage.setItem('customers', JSON.stringify(customers));
+localStorage.setItem('products', JSON.stringify(products));
+localStorage.setItem('invoices', JSON.stringify(invoices));
+localStorage.setItem('company', JSON.stringify(company));
+}
+
+function showSection(id){
+document.querySelectorAll('section').forEach(s=>s.style.display='none');
+document.getElementById(id).style.display='block';
+if(id==='products') updateProductList();
+if(id==='customers') updateCustomerList();
+if(id==='invoice') { updateCustomerDropdown(); updateProductDropdown();}
+if(id==='invoicesList') renderInvoicesList();
 }
 
 function registerCompany(){
 const name=document.getElementById('companyName').value.trim();
 const address=document.getElementById('companyAddress').value.trim();
 const pan=document.getElementById('companyPAN').value.trim();
-if(!name){alert('Company name required');return;}
-company={name,address,pan};
-saveData();
-alert('Company Registered!');
+if(!name){alert('Company name required'); return;}
+company={name,address,pan}; saveData(); alert('Company Registered!');
 }
 
 function addCustomer(){
 const name=document.getElementById('customerName').value.trim();
-if(!name){alert('Customer name required');return;}
-const customer={name,phone:document.getElementById('customerPhone').value.trim(),email:document.getElementById('customerEmail').value.trim(),address:document.getElementById('customerAddress').value.trim(),pan:document.getElementById('customerPAN').value.trim()};
-customers.push(customer);saveData();updateCustomerList();updateCustomerDropdown();alert('Customer Added!');
-}
-
-function updateCustomerDropdown(){
-const select=document.getElementById('invoiceCustomer');
-select.innerHTML='';
-customers.forEach(c=>{const option=document.createElement('option');option.text=c.name;select.add(option);});
+if(!name){alert('Customer name required'); return;}
+const customer={name,phone:document.getElementById('customerPhone').value.trim(),
+email:document.getElementById('customerEmail').value.trim(),
+address:document.getElementById('customerAddress').value.trim(),
+pan:document.getElementById('customerPAN').value.trim()};
+customers.push(customer); saveData(); updateCustomerList(); alert('Customer Added!');
 }
 
 function updateCustomerList(){
 const table=document.getElementById('customersTable');
-table.innerHTML='<tr><th>Customer Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr>';
-customers.forEach((c,index)=>{
+table.innerHTML='<tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr>';
+customers.forEach((c,i)=>{
 const row=table.insertRow();
 row.insertCell(0).innerText=c.name;
 row.insertCell(1).innerText=c.phone;
 row.insertCell(2).innerText=c.email;
 row.insertCell(3).innerText=c.address;
 row.insertCell(4).innerText=c.pan;
-const actionCell=row.insertCell(5);
+const cell=row.insertCell(5);
 const delBtn=document.createElement('button');
-delBtn.innerText='Delete';
-delBtn.className='delete-btn';
-delBtn.addEventListener('click',()=>{customers.splice(index,1);saveData();updateCustomerList();updateCustomerDropdown();});
-actionCell.appendChild(delBtn);
+delBtn.innerText='Delete'; delBtn.className='delete-btn';
+delBtn.onclick=()=>{customers.splice(i,1); saveData(); updateCustomerList();};
+cell.appendChild(delBtn);
 });
 }
 
 function addProduct(){
 const name=document.getElementById('productName').value.trim();
 const price=parseFloat(document.getElementById('productPrice').value);
-const stock=parseFloat(document.getElementById('productStock').value);
 const expiry=document.getElementById('productExpiry').value;
-if(!name||isNaN(price)||isNaN(stock)){alert('Valid product name, price and stock required');return;}
-products.push({name,price,stock,expiry});
-saveData();updateProductList();updateProductDropdown();alert('Product Added!');
-}
-
-function updateProductDropdown(){
-const select=document.getElementById('invoiceProduct');
-select.innerHTML='';
-products.forEach(p=>{const option=document.createElement('option');option.text=p.name;select.add(option);});
+const stock=parseInt(document.getElementById('productStock').value);
+if(!name||isNaN(price)||!expiry||isNaN(stock)){alert('Valid data required'); return;}
+products.push({name,price,expiry,stock}); saveData(); updateProductList(); alert('Product Added!');
 }
 
 function updateProductList(){
 const table=document.getElementById('productsTable');
-table.innerHTML='<tr><th>Product Name</th><th>Unit Price</th><th>Stock</th><th>Expiry</th><th>Action</th></tr>';
-const today=new Date();
-products.forEach((p,index)=>{
+table.innerHTML='<tr><th>Name</th><th>Price</th><th>Expiry</th><th>Stock</th><th>Action</th></tr>';
+products.forEach((p,i)=>{
 const row=table.insertRow();
 row.insertCell(0).innerText=p.name;
 row.insertCell(1).innerText=p.price.toFixed(2);
-const stockCell=row.insertCell(2);
-stockCell.innerText=p.stock;
-if(p.stock<10){stockCell.classList.add('low-stock');}
-const expiryCell=row.insertCell(3);
-expiryCell.innerText=p.expiry||'';
-if(p.expiry && new Date(p.expiry)<today){expiryCell.classList.add('expired');expiryCell.innerText+=" (Expired)";}
-const actionCell=row.insertCell(4);
-const delBtn=document.createElement('button');
-delBtn.innerText='Delete';
-delBtn.className='delete-btn';
-delBtn.addEventListener('click',()=>{products.splice(index,1);saveData();updateProductList();updateProductDropdown();});
-actionCell.appendChild(delBtn);
+const cellExpiry=row.insertCell(2); cellExpiry.innerText=p.expiry;
+const expDate=new Date(p.expiry); if(expDate<new Date()) cellExpiry.className='expired';
+row.insertCell(3).innerText=p.stock;
+const cell=row.insertCell(4);
+const delBtn=document.createElement('button'); delBtn.innerText='Delete'; delBtn.className='delete-btn';
+delBtn.onclick=()=>{products.splice(i,1); saveData(); updateProductList();};
+cell.appendChild(delBtn);
 });
 }
 
-function renderInvoices(){
-const container=document.getElementById('invoicesContainer');
-container.innerHTML='';
-invoices.forEach((inv,index)=>{
-const div=document.createElement('div');
-div.className='invoice-card';
-let itemsHtml='';
-inv.items.forEach((it,sn)=>{itemsHtml+=`<tr><td>${sn+1}</td><td>${it.name}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${(it.qty*it.price).toFixed(2)}</td></tr>`;});
-const downloadBtnId='downloadBtn'+index;
-const printBtnId='printBtn'+index;
-const deleteBtnId='deleteBtn'+index;
-div.innerHTML=`<h3>${company.name||'Company'} - Invoice #${index+1}</h3>
-<p>Company Address: ${company.address||''} | PAN: ${company.pan||''}</p>
-<p>Customer: ${inv.customer.name} | Phone: ${inv.customer.phone} | Email: ${inv.customer.email} | Address: ${inv.customer.address} | PAN: ${inv.customer.pan}</p>
-<p>Date: ${new Date(inv.date).toLocaleString()}</p>
-<table class='invoice-items-table'><tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>${itemsHtml}</table>
-<p>Discount: ${inv.discount}%</p>
-<p>VAT: ${inv.vat ? 'Applied' : 'Not applied'}</p>
-<p>Total: ${inv.total.toFixed(2)}</p>
-<button class='download-btn' id='${downloadBtnId}'>Download as Image</button>
-<button class='download-btn' id='${printBtnId}'>Print Invoice</button>
-<button class='delete-btn' id='${deleteBtnId}'>Delete Invoice</button>`;
-container.appendChild(div);
-
-const downloadBtn=div.querySelector('#'+downloadBtnId);
-downloadBtn.addEventListener('click',()=>{
-downloadBtn.style.display='none';
-const printBtn=div.querySelector('#'+printBtnId);
-printBtn.style.display='none';
-const deleteBtn=div.querySelector('#'+deleteBtnId);
-deleteBtn.style.display='none';
-html2canvas(div).then(canvas=>{
-const link=document.createElement('a');
-link.download=`Invoice_${index+1}.png`;
-link.href=canvas.toDataURL();
-link.click();
-downloadBtn.style.display='inline-block';
-printBtn.style.display='inline-block';
-deleteBtn.style.display='inline-block';
-});
-});
-
-const printBtn=div.querySelector('#'+printBtnId);
-printBtn.addEventListener('click',()=>{
-const printWindow=window.open('', '', 'width=800,height=600');
-printWindow.document.write('<html><head><title>Invoice</title></head><body>');
-printWindow.document.write(div.innerHTML);
-printWindow.document.write('</body></html>');
-printWindow.document.close();
-printWindow.print();
-});
-
-const deleteBtn=div.querySelector('#'+deleteBtnId);
-deleteBtn.addEventListener('click',()=>{invoices.splice(index,1);saveData();renderInvoices();});
-});
+function updateCustomerDropdown(){
+const select=document.getElementById('invoiceCustomer'); select.innerHTML='';
+customers.forEach(c=>{const opt=document.createElement('option'); opt.text=c.name; select.add(opt);});
 }
+
+function updateProductDropdown(){
+const select=document.getElementById('invoiceProduct'); select.innerHTML='';
+products.forEach(p=>{const opt=document.createElement('option'); opt.text=p.name; select.add(opt);});
+updateStockInfo();
+}
+
+function updateStockInfo(){
+const prodName=document.getElementById('invoiceProduct').value;
+const span=document.getElementById('productStockInfo');
+const product=products.find(p=>p.name===prodName);
+span.innerText=product?`Stock: ${product.stock} | Exp: ${product.expiry}`:'';
+}
+
+document.getElementById('invoiceProduct').addEventListener('change', updateStockInfo);
 
 function addInvoiceItem(){
 const prodName=document.getElementById('invoiceProduct').value;
-const qty=parseFloat(document.getElementById('invoiceQty').value);
-if(!prodName||isNaN(qty)||qty<=0){alert('Select product and valid quantity');return;}
+const qty=parseInt(document.getElementById('invoiceQty').value);
+if(!prodName||isNaN(qty)||qty<=0){alert('Select product and valid quantity'); return;}
 const product=products.find(p=>p.name===prodName);
-if(qty>product.stock){alert('Not enough stock! Only '+product.stock+' available');return;}
-invoiceItems.push({name:product.name,qty,price:product.price});
-updateInvoiceItemsTable();
+if(qty>product.stock){alert('Insufficient stock'); return;}
+invoiceItems.push({name:product.name,qty,price:product.price,expiry:product.expiry});
+product.stock -= qty; saveData(); updateProductList(); updateInvoiceItemsTable();
 }
 
 function updateInvoiceItemsTable(){
 const table=document.getElementById('invoiceItems');
 table.innerHTML='<tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Action</th></tr>';
-invoiceItems.forEach((it,index)=>{
+invoiceItems.forEach((it,i)=>{
 const row=table.insertRow();
-row.insertCell(0).innerText=index+1;
+row.insertCell(0).innerText=i+1;
 row.insertCell(1).innerText=it.name;
 row.insertCell(2).innerText=it.qty;
 row.insertCell(3).innerText=it.price.toFixed(2);
 row.insertCell(4).innerText=(it.qty*it.price).toFixed(2);
-const actionCell=row.insertCell(5);
-const delBtn=document.createElement('button');
-delBtn.innerText='Delete';
-delBtn.className='delete-btn';
-delBtn.addEventListener('click',()=>{invoiceItems.splice(index,1);updateInvoiceItemsTable();});
-actionCell.appendChild(delBtn);
+const cell=row.insertCell(5); const delBtn=document.createElement('button'); delBtn.innerText='Delete'; delBtn.className='delete-btn';
+delBtn.onclick=()=>{itRemoved=invoiceItems.splice(i,1)[0]; const prod=products.find(p=>p.name==itRemoved.name); if(prod) prod.stock+=itRemoved.qty; saveData(); updateInvoiceItemsTable(); updateProductList();};
+cell.appendChild(delBtn);
 });
 }
 
 function saveInvoice(){
 const custIndex=document.getElementById('invoiceCustomer').selectedIndex;
-if(custIndex<0){alert('Select customer');return;}
-if(invoiceItems.length===0){alert('Add invoice items');return;}
+if(custIndex<0){alert('Select customer'); return;}
+if(invoiceItems.length===0){alert('Add invoice items'); return;}
 const discount=parseFloat(document.getElementById('invoiceDiscount').value)||0;
 const vat=document.getElementById('enableVAT').checked;
 const total=invoiceItems.reduce((sum,it)=>sum+it.qty*it.price,0)*(1-discount/100)*(vat?1.13:1);
-const inv={customer:customers[custIndex],items:invoiceItems.slice(),discount,vat,total,date:new Date()};
-invoices.push(inv);
-// Deduct stock
-invoiceItems.forEach(it=>{
-const p=products.find(p=>p.name===it.name);
-if(p){p.stock-=it.qty;}
-});
-saveData();
-invoiceItems=[];updateInvoiceItemsTable();renderInvoices();updateProductList();
-alert('Invoice saved!');
+const inv={id:Date.now(), customer:customers[custIndex], items:invoiceItems.slice(), discount, vat, total, date:new Date()};
+invoices.push(inv); saveData(); invoiceItems=[]; updateInvoiceItemsTable(); alert('Invoice saved!'); showSection('invoicesList');
 }
 
-updateCustomerList();updateCustomerDropdown();updateProductList();updateProductDropdown();renderInvoices();
-
-document.getElementById('saveCompanyBtn').addEventListener('click',registerCompany);
-document.getElementById('addCustomerBtn').addEventListener('click',addCustomer);
-document.getElementById('addProductBtn').addEventListener('click',addProduct);
-document.getElementById('addInvoiceItemBtn').addEventListener('click',addInvoiceItem);
-document.getElementById('saveInvoiceBtn').addEventListener('click',saveInvoice);
+function renderInvoicesList(){
+const container=document.getElementById('invoicesContainer'); container.innerHTML='';
+invoices.forEach((inv,i)=>{
+const div=document.createElement('div'); div.className='invoice-card';
+div.innerHTML=`<h3>Invoice #${i+1} - ${inv.customer.name}</h3>
+<p>Date: ${new Date(inv.date).toLocaleString()}</p>
+<button class='view-btn'>View</button>`;
+container.appendChild(div);
+div.querySelector('.view-btn').onclick=()=>{currentInvoiceId=i; showInvoiceDetail(i);}
 });
+}
+
+function showInvoiceDetail(i){
+const inv=invoices[i];
+let itemsHtml='<tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>';
+inv.items.forEach((it,index)=>{itemsHtml+=`<tr><td>${index+1}</td><td>${it.name}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${(it.qty*it.price).toFixed(2)}</td></tr>`;});
+const content=`<h3>${company.name||'Company'} - Invoice</h3>
+<p>Customer: ${inv.customer.name} | Phone: ${inv.customer.phone}</p>
+<p>Date: ${new Date(inv.date).toLocaleString()}</p>
+<table class='invoice-items-table'>${itemsHtml}</table>
+<p>Discount: ${inv.discount}% | VAT: ${inv.vat ? 'Applied':'Not Applied'}</p>
+<p>Total: ${inv.total.toFixed(2)}</p>
+<button onclick="downloadInvoice()">💾 Download</button>
+<button onclick="deleteInvoice()">🗑 Delete</button>`;
+document.getElementById('viewInvoiceContent').innerHTML=content;
+showSection('viewInvoice');
+}
+
+function backToInvoices(){ showSection('invoicesList'); }
+
+function printInvoice(){
+const content=document.getElementById('viewInvoiceContent').innerHTML;
+const w=window.open('','_blank');
+w.document.write(`<html><head><title>Invoice</title></head><body>${content}</body></html>`);
+w.print(); w.close();
+}
+
+function downloadInvoice(){
+const div=document.getElementById('viewInvoiceContent');
+html2canvas(div).then(canvas=>{
+const link=document.createElement('a'); link.download=`Invoice_${currentInvoiceId+1}.png`;
+link.href=canvas.toDataURL(); link.click();
+});
+}
+
+function deleteInvoice(){
+if(confirm('Delete this invoice?')){
+invoices.splice(currentInvoiceId,1); saveData(); backToInvoices();
+}
+}
+
+// Initial load
+showSection('company');
 </script>
 </body>
 </html>
