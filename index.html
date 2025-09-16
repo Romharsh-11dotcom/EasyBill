@@ -3,44 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EasyBill</title>
+<title>EasyBill Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; font-family:'Roboto',sans-serif; }
-body { background: linear-gradient(135deg,#74ebd5 0%,#ACB6E5 100%); }
-header { background:#34495e; color:#fff; text-align:center; padding:20px; font-size:28px; font-weight:bold; box-shadow:0 4px 6px rgba(0,0,0,0.3); }
+body { background:#f4f6f8; }
+header { background:#34495e; color:#fff; text-align:center; padding:20px; font-size:28px; font-weight:bold; }
 nav { display:flex; flex-wrap:wrap; justify-content:center; margin:15px 0; }
-nav button { flex:1 0 120px; margin:5px; padding:12px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; transition:0.3s; background:linear-gradient(135deg,#3498db,#2980b9); color:#fff; box-shadow:0 3px 6px rgba(0,0,0,0.2); }
-nav button:hover { background:linear-gradient(135deg,#2ecc71,#27ae60); }
+nav button { flex:1 0 120px; margin:5px; padding:12px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; background:#3498db; color:#fff; }
+nav button.active { background:#2ecc71; }
 main { max-width:1100px; margin:0 auto; padding:15px; }
 section { display:none; background:#fff; border-radius:15px; padding:25px; margin-bottom:25px; box-shadow:0 6px 20px rgba(0,0,0,0.15); transition:0.3s; }
 section.active { display:block; }
-input, select, button { width:100%; padding:10px; margin:6px 0; border-radius:10px; border:1px solid #ccc; font-size:14px; transition:0.3s; }
-input:focus, select:focus { border-color:#3498db; outline:none; box-shadow:0 0 8px rgba(52,152,219,0.4);}
-button.add-btn { background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; font-weight:bold; box-shadow:0 3px 6px rgba(0,0,0,0.2);}
-button.add-btn:hover { background:linear-gradient(135deg,#2ecc71,#27ae60);}
-button.delete-btn { background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; margin-left:5px; box-shadow:0 3px 6px rgba(0,0,0,0.2);}
-button.download-btn { background:linear-gradient(135deg,#2ecc71,#27ae60); margin-left:5px;}
-button.print-btn { background:linear-gradient(135deg,#f39c12,#e67e22); margin-left:5px;}
-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-th, td { padding:10px; text-align:center; border-bottom:1px solid #ddd;}
-th { background:linear-gradient(135deg,#3498db,#2980b9); color:#fff;}
-.invoice-card { background:#fdfdfd; border-radius:12px; padding:18px; margin:12px 0; box-shadow:0 4px 15px rgba(0,0,0,0.1); position:relative; transition:0.3s; }
-.invoice-items-table th, .invoice-items-table td { padding:6px; }
+input, select, button { width:100%; padding:10px; margin:6px 0; border-radius:10px; border:1px solid #ccc; font-size:14px; }
+button.add-btn { background:#2ecc71; color:#fff; font-weight:bold; }
+button.delete-btn { background:#e74c3c; color:#fff; margin-left:5px; }
+button.download-btn { background:#16a085; color:#fff; margin-left:5px; }
+button.print-btn { background:#f39c12; color:#fff; margin-left:5px; }
+.invoice-card { background:#fdfdfd; border-radius:12px; padding:18px; margin:12px 0; box-shadow:0 4px 15px rgba(0,0,0,0.1); position:relative; }
+.invoice-items-table th, .invoice-items-table td { padding:6px; border:1px solid #ddd; }
 label { font-weight:bold; margin-top:10px; display:block; }
-@media(max-width:650px){ nav button{ flex:1 0 45%; margin:4px;} table, th, td{font-size:12px;} }
+#invoiceView { display:none; background:#fff; border-radius:12px; padding:25px; box-shadow:0 6px 20px rgba(0,0,0,0.15); margin-bottom:25px; }
 </style>
 </head>
 <body>
 
-<header>EasyBill</header>
+<header>EasyBill Pro</header>
 <nav>
-<button onclick="showPage('accountsPage')">Accounts</button>
-<button onclick="showPage('customersPage')">Customers</button>
-<button onclick="showPage('productsPage')">Products</button>
-<button onclick="showPage('newInvoicePage')">Create Invoice</button>
-<button onclick="showPage('invoicesPage')">Saved Invoices</button>
+  <button data-page="accountsPage" class="active">Accounts</button>
+  <button data-page="customersPage">Customers</button>
+  <button data-page="productsPage">Products</button>
+  <button data-page="newInvoicePage">Create Invoice</button>
+  <button data-page="invoicesPage">Saved Invoices</button>
 </nav>
 
 <main>
@@ -80,6 +75,8 @@ label { font-weight:bold; margin-top:10px; display:block; }
 <!-- Create Invoice Page -->
 <section id="newInvoicePage">
 <h2>Create Invoice</h2>
+<label>Upload Logo:</label>
+<input type="file" id="invoiceLogo" accept="image/*">
 <label>Customer:</label>
 <select id="invoiceCustomer"></select>
 <label><input type="checkbox" id="enableDiscount" checked> Enable Discount</label>
@@ -101,31 +98,57 @@ label { font-weight:bold; margin-top:10px; display:block; }
 <div id="invoicesContainer"></div>
 </section>
 
-<script>
-// PAGE SWITCH
-function showPage(pageId){ document.querySelectorAll('main section').forEach(s=>s.classList.remove('active')); document.getElementById(pageId).classList.add('active'); }
+<!-- Full Invoice View -->
+<section id="invoiceView"></section>
 
-// DATA
+<script>
+// --- PAGE SWITCH ---
+const navButtons = document.querySelectorAll('nav button');
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    showPage(btn.dataset.page);
+  });
+});
+function showPage(id) {
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('invoiceView').style.display='none';
+  document.getElementById(id).classList.add('active');
+}
+
+// --- DATA ---
 let accounts=JSON.parse(localStorage.getItem('accounts')||'[]');
 let currentAccountIndex=0;
-let customers=[], products=[], invoices=[], invoiceItems=[];
+let customers=[], products=[], invoices=[], invoiceItems=[], invoiceLogo=null;
 
-// SAVE
+// --- SAVE ---
 function saveCurrentAccountData(){
+  if(accounts.length===0) return;
   accounts[currentAccountIndex].customers=customers;
   accounts[currentAccountIndex].products=products;
   accounts[currentAccountIndex].invoices=invoices;
   localStorage.setItem('accounts',JSON.stringify(accounts));
 }
 
-// ACCOUNTS
+// --- ACCOUNTS ---
 function renderAccounts(){
-  const table=document.getElementById('accountsTable'); table.innerHTML='<tr><th>Name</th><th>PAN</th><th>Address</th><th>Action</th></tr>';
+  const table=document.getElementById('accountsTable'); 
+  table.innerHTML='<tr><th>Name</th><th>PAN</th><th>Address</th><th>Action</th></tr>';
   accounts.forEach((acc,i)=>{
-    const row=table.insertRow(); row.insertCell(0).innerText=acc.name; row.insertCell(1).innerText=acc.pan; row.insertCell(2).innerText=acc.address;
+    const row=table.insertRow();
+    row.insertCell(0).innerText=acc.name; 
+    row.insertCell(1).innerText=acc.pan; 
+    row.insertCell(2).innerText=acc.address;
     const action=row.insertCell(3);
-    const switchBtn=document.createElement('button'); switchBtn.innerText='Switch'; switchBtn.className='add-btn'; switchBtn.onclick=()=>{ currentAccountIndex=i; loadCurrentAccount(); renderAccounts(); showPage('customersPage'); };
-    const deleteBtn=document.createElement('button'); deleteBtn.innerText='Delete'; deleteBtn.className='delete-btn'; deleteBtn.onclick=()=>{ if(confirm('Delete this account?')){ accounts.splice(i,1); localStorage.setItem('accounts',JSON.stringify(accounts)); if(currentAccountIndex>=accounts.length) currentAccountIndex=0; if(accounts.length>0) loadCurrentAccount(); renderAccounts(); } };
+    const switchBtn=document.createElement('button'); 
+    switchBtn.innerText='Switch'; 
+    switchBtn.className='add-btn';
+    switchBtn.onclick=()=>{ currentAccountIndex=i; loadCurrentAccount(); renderAccounts(); showPage('customersPage'); };
+    const deleteBtn=document.createElement('button'); 
+    deleteBtn.innerText='Delete'; 
+    deleteBtn.className='delete-btn';
+    deleteBtn.onclick=()=>{ if(confirm('Delete this account?')){ accounts.splice(i,1); localStorage.setItem('accounts',JSON.stringify(accounts)); if(currentAccountIndex>=accounts.length) currentAccountIndex=0; if(accounts.length>0) loadCurrentAccount(); renderAccounts(); } };
     action.appendChild(switchBtn); action.appendChild(deleteBtn);
   });
 }
@@ -136,7 +159,9 @@ function addAccount(){
   if(!name||!pan||!addr){ alert('All fields required'); return; }
   accounts.push({name,pan,address:addr,customers:[],products:[],invoices:[]});
   localStorage.setItem('accounts',JSON.stringify(accounts));
-  document.getElementById('accountName').value=''; document.getElementById('accountPAN').value=''; document.getElementById('accountAddress').value='';
+  document.getElementById('accountName').value=''; 
+  document.getElementById('accountPAN').value=''; 
+  document.getElementById('accountAddress').value='';
   renderAccounts();
 }
 document.getElementById('addAccountBtn').addEventListener('click', addAccount);
@@ -149,7 +174,7 @@ function loadCurrentAccount(){
   updateCustomerList(); updateCustomerDropdown(); updateProductList(); updateProductDropdown(); renderInvoices();
 }
 
-// CUSTOMER MANAGEMENT
+// --- CUSTOMER ---
 function addCustomer(){
   const name=document.getElementById('customerName').value.trim();
   if(!name){alert('Customer name required'); return;}
@@ -158,8 +183,8 @@ function addCustomer(){
 }
 document.getElementById('addCustomerBtn').addEventListener('click', addCustomer);
 function updateCustomerDropdown(){
-  const select=document.getElementById('invoiceCustomer'); select.innerHTML='';
-  customers.forEach(c=>{ const opt=document.createElement('option'); opt.text=c.name; select.add(opt); });
+  const sel=document.getElementById('invoiceCustomer'); sel.innerHTML='';
+  customers.forEach(c=>{ const opt=document.createElement('option'); opt.text=c.name; sel.add(opt); });
 }
 function updateCustomerList(){
   const table=document.getElementById('customersTable'); table.innerHTML='<tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th></tr>';
@@ -173,7 +198,7 @@ function updateCustomerList(){
   });
 }
 
-// PRODUCT MANAGEMENT
+// --- PRODUCTS ---
 function addProduct(){
   const name=document.getElementById('productName').value.trim();
   const price=parseFloat(document.getElementById('productPrice').value);
@@ -184,20 +209,24 @@ function addProduct(){
 }
 document.getElementById('addProductBtn').addEventListener('click', addProduct);
 function updateProductDropdown(){
-  const select=document.getElementById('invoiceProduct'); select.innerHTML='';
-  products.forEach(p=>{ const opt=document.createElement('option'); opt.text=p.name; select.add(opt); });
+  const sel=document.getElementById('invoiceProduct'); sel.innerHTML='';
+  products.forEach(p=>{ const opt=document.createElement('option'); opt.text=p.name; sel.add(opt); });
 }
 function updateProductList(){
   const table=document.getElementById('productsTable'); table.innerHTML='<tr><th>Name</th><th>Price</th><th>Stock</th><th>Expiry</th><th>Action</th></tr>';
   products.forEach((p,i)=>{
-    const row=table.insertRow(); row.insertCell(0).innerText=p.name; row.insertCell(1).innerText=p.price.toFixed(2);
-    row.insertCell(2).innerText=p.stock; row.insertCell(3).innerText=p.expiry; const action=row.insertCell(4);
-    const delBtn=document.createElement('button'); delBtn.innerText='Delete'; delBtn.className='delete-btn'; delBtn.onclick=()=>{products.splice(i,1); saveCurrentAccountData(); updateProductList(); updateProductDropdown();}
+    const row=table.insertRow(); row.insertCell(0).innerText=p.name; row.insertCell(1).innerText=p.price.toFixed(2); row.insertCell(2).innerText=p.stock; row.insertCell(3).innerText=p.expiry;
+    const action=row.insertCell(4); const delBtn=document.createElement('button'); delBtn.innerText='Delete'; delBtn.className='delete-btn'; delBtn.onclick=()=>{products.splice(i,1); saveCurrentAccountData(); updateProductList(); updateProductDropdown();}
     action.appendChild(delBtn);
   });
 }
 
-// INVOICE MANAGEMENT
+// --- INVOICE ---
+document.getElementById('invoiceLogo').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(file){ const reader = new FileReader(); reader.onload=()=>{ invoiceLogo = reader.result; }; reader.readAsDataURL(file); } else { invoiceLogo=null; }
+});
+
 function addInvoiceItem(){
   const prodName=document.getElementById('invoiceProduct').value;
   const qty=parseFloat(document.getElementById('invoiceQty').value);
@@ -213,7 +242,8 @@ function updateInvoiceItemsTable(){
   invoiceItems.forEach((it,i)=>{
     const row=table.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerText=it.name;
     row.insertCell(2).innerText=it.qty; row.insertCell(3).innerText=it.price.toFixed(2);
-    row.insertCell(4).innerText=(it.qty*it.price).toFixed(2); const action=row.insertCell(5);
+    row.insertCell(4).innerText=(it.qty*it.price).toFixed(2); 
+    const action=row.insertCell(5);
     const delBtn=document.createElement('button'); delBtn.innerText='Delete'; delBtn.className='delete-btn'; delBtn.onclick=()=>{invoiceItems.splice(i,1); updateInvoiceItemsTable();}
     action.appendChild(delBtn);
   });
@@ -226,58 +256,117 @@ function saveInvoice(){
   const discount=parseFloat(document.getElementById('invoiceDiscount').value)||0;
   const vat=document.getElementById('enableVAT').checked;
   const total=invoiceItems.reduce((sum,it)=>sum+it.qty*it.price,0)*(1-discount/100)*(vat?1.13:1);
-  const inv={customer:customers[custIndex],items:invoiceItems.slice(),discount,vat,total,date:new Date()};
+  const inv={customer:customers[custIndex],items:invoiceItems.slice(),discount,vat,total,date:new Date(),logo:invoiceLogo};
   invoices.push(inv);
-  // reduce stock
   invoiceItems.forEach(it=>{ const p=products.find(pr=>pr.name===it.name); if(p) p.stock-=it.qty; });
   invoiceItems=[]; updateInvoiceItemsTable(); saveCurrentAccountData(); updateProductList(); renderInvoices(); alert('Invoice saved!');
 }
 document.getElementById('saveInvoiceBtn').addEventListener('click', saveInvoice);
 
+// --- RENDER INVOICES LIST ---
 function renderInvoices(){
   const container=document.getElementById('invoicesContainer'); container.innerHTML='';
   invoices.forEach((inv,i)=>{
     const div=document.createElement('div'); div.className='invoice-card';
-    let itemsHtml=''; inv.items.forEach(it=>{ itemsHtml+=`<tr><td>${it.name}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${(it.qty*it.price).toFixed(2)}</td></tr>`; });
-    const downloadBtnId='downloadBtn'+i; const deleteBtnId='deleteBtn'+i; const printBtnId='printBtn'+i;
     div.innerHTML=`<h3>${accounts[currentAccountIndex].name} - Invoice #${i+1}</h3>
-      <p>Customer: ${inv.customer.name} | Phone: ${inv.customer.phone} | Email: ${inv.customer.email}</p>
-      <p>Date: ${new Date(inv.date).toLocaleString()}</p>
-      <table class='invoice-items-table'><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>${itemsHtml}</table>
-      <p>Discount: ${inv.discount}%</p><p>VAT: ${inv.vat?'Applied':'Not applied'}</p>
-      <p>Total: ${inv.total.toFixed(2)}</p>
-      <button class='download-btn' id='${downloadBtnId}'>Download</button>
-      <button class='print-btn' id='${printBtnId}'>Print</button>
-      <button class='delete-btn' id='${deleteBtnId}'>Delete</button>`;
+      <p>Customer: ${inv.customer.name} | Total: ${inv.total.toFixed(2)}</p>
+      <button class='add-btn' id='viewBtn${i}'>View</button>
+      <button class='delete-btn' id='deleteBtn${i}'>Delete</button>`;
     container.appendChild(div);
 
-    const downloadBtn=div.querySelector('#'+downloadBtnId);
-    const printBtn=div.querySelector('#'+printBtnId);
-    const deleteBtn=div.querySelector('#'+deleteBtnId);
+    document.getElementById(`viewBtn${i}`).addEventListener('click', ()=>{ showFullInvoice(i); });
+    document.getElementById(`deleteBtn${i}`).addEventListener('click', ()=>{ if(confirm('Delete this invoice?')){ invoices.splice(i,1); saveCurrentAccountData(); renderInvoices(); updateProductList(); } });
+  });
+}
 
-    downloadBtn.addEventListener('click', ()=>{
-      downloadBtn.style.display='none'; printBtn.style.display='none'; deleteBtn.style.display='none';
-      html2canvas(div).then(canvas=>{
-        const link=document.createElement('a'); link.download=`Invoice_${i+1}.png`; link.href=canvas.toDataURL(); link.click();
-        downloadBtn.style.display='inline-block'; printBtn.style.display='inline-block'; deleteBtn.style.display='inline-block';
-      });
+// --- FULL INVOICE VIEW ---
+function showFullInvoice(index){
+  const inv=document.createElement('div'); inv.className='invoice-card'; 
+  const invoiceData=invoices[index]; const company=accounts[currentAccountIndex];
+  const dateStr=new Date(invoiceData.date).toLocaleDateString();
+
+  // Logo on left side of company info
+  let logoHtml = '';
+  if(invoiceData.logo){
+    logoHtml = `<div style="flex:0 0 auto; margin-right:20px;">
+                  <img src="${invoiceData.logo}" style="max-width:120px; max-height:80px;">
+                </div>`;
+  }
+
+  const html = `
+    <div style="display:flex; align-items:center; justify-content:flex-start; margin-bottom:40px;">
+      ${logoHtml}
+      <div style="text-align:left;">
+        <h1 style="margin:0;">${company.name}</h1>
+        <p style="margin:0;">PAN: ${company.pan}</p>
+        <p style="margin:0;">${company.address}</p>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+      <div>
+        <h4>Bill To:</h4>
+        <p>${invoiceData.customer.name}</p>
+        <p>${invoiceData.customer.address||''}</p>
+        <p>PAN: ${invoiceData.customer.pan||''}</p>
+        <p>Phone: ${invoiceData.customer.phone||''}</p>
+        <p>Email: ${invoiceData.customer.email||''}</p>
+      </div>
+      <div style="text-align:right;">
+        <h4>Invoice #${index+1}</h4>
+        <p>Date: ${dateStr}</p>
+      </div>
+    </div>
+    <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+      <thead style="background:#2980b9; color:#fff;">
+        <tr><th>#</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+      </thead><tbody>
+      ${invoiceData.items.map((it,idx)=>`<tr style="background:${idx%2===0?'#f9f9f9':'#fff'};"><td>${idx+1}</td><td>${it.name}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${(it.qty*it.price).toFixed(2)}</td></tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="text-align:right; margin-bottom:30px;">
+      <p>Discount: ${invoiceData.discount}%</p>
+      <p>VAT: ${invoiceData.vat?'Applied (13%)':'Not applied'}</p>
+      <h2>Total: ${invoiceData.total.toFixed(2)}</h2>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:40px;">
+      <span>Receiver Signature</span>
+      <span>Checked By</span>
+      <span>For ${company.name}</span>
+    </div>
+    <div style="margin-top:15px;">
+      <button class='download-btn' id='downloadBtn'>Download</button>
+      <button class='print-btn' id='printBtn'>Print</button>
+      <button class='add-btn' id='backBtn'>Back</button>
+    </div>
+  `;
+
+  const invoiceView=document.getElementById('invoiceView');
+  invoiceView.innerHTML=html; invoiceView.style.display='block';
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+
+  document.getElementById('backBtn').addEventListener('click', ()=>{
+    invoiceView.style.display='none';
+    showPage('invoicesPage');
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const btns=document.querySelectorAll('#downloadBtn,#printBtn,#backBtn'); btns.forEach(b=>b.style.display='none');
+    html2canvas(invoiceView).then(canvas=>{
+      const link=document.createElement('a'); link.download=`Invoice_${index+1}.png`; link.href=canvas.toDataURL(); link.click();
+      btns.forEach(b=>b.style.display='inline-block');
     });
+  });
 
-    printBtn.addEventListener('click', ()=>{
-      downloadBtn.style.display='none'; printBtn.style.display='none'; deleteBtn.style.display='none';
-      html2canvas(div).then(canvas=>{
-        const win=window.open(''); win.document.write('<img src="'+canvas.toDataURL()+'" onload="window.print();window.close()">');
-        downloadBtn.style.display='inline-block'; printBtn.style.display='inline-block'; deleteBtn.style.display='inline-block';
-      });
-    });
-
-    deleteBtn.addEventListener('click', ()=>{
-      if(confirm('Delete this invoice?')){ invoices.splice(i,1); saveCurrentAccountData(); renderInvoices(); updateProductList();}
+  document.getElementById('printBtn').addEventListener('click', ()=>{
+    const btns=document.querySelectorAll('#downloadBtn,#printBtn,#backBtn'); btns.forEach(b=>b.style.display='none');
+    html2canvas(invoiceView).then(canvas=>{
+      const win=window.open(''); win.document.write('<img src="'+canvas.toDataURL()+'" onload="window.print();window.close()">');
+      btns.forEach(b=>b.style.display='inline-block');
     });
   });
 }
 
-// INIT
+// --- INIT ---
 if(accounts.length>0) loadCurrentAccount(); renderAccounts();
 </script>
 </body>
