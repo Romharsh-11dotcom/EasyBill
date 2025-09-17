@@ -2,220 +2,117 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EasyBill Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-* { box-sizing:border-box; margin:0; padding:0; font-family:'Roboto',sans-serif; }
-body { background:#f4f6f8; }
-header { background:#34495e; color:#fff; text-align:center; padding:20px; font-size:28px; font-weight:bold; }
-nav { display:flex; flex-wrap:wrap; justify-content:center; margin:15px 0; }
-nav button { flex:1 0 120px; margin:5px; padding:12px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; background:#3498db; color:#fff; }
-nav button.active { background:#2ecc71; }
-main { max-width:1100px; margin:0 auto; padding:15px; }
-section { display:none; background:#fff; border-radius:15px; padding:25px; margin-bottom:25px; box-shadow:0 6px 20px rgba(0,0,0,0.15); transition:0.3s; }
-section.active { display:block; }
-input, select, button { width:100%; padding:10px; margin:6px 0; border-radius:10px; border:1px solid #ccc; font-size:14px; }
-button.add-btn { background:#2ecc71; color:#fff; font-weight:bold; }
-button.delete-btn { background:#e74c3c; color:#fff; margin-left:5px; }
-button.download-btn { background:#16a085; color:#fff; margin-left:5px; }
-button.print-btn { background:#f39c12; color:#fff; margin-left:5px; }
-.invoice-card { background:#fdfdfd; border-radius:12px; padding:18px; margin:12px 0; box-shadow:0 4px 15px rgba(0,0,0,0.1); position:relative; }
-.invoice-items-table th, .invoice-items-table td { padding:6px; border:1px solid #ddd; }
-label { font-weight:bold; margin-top:10px; display:block; }
-#invoiceView, #ledgerView { display:none; background:#fff; border-radius:12px; padding:25px; box-shadow:0 6px 20px rgba(0,0,0,0.15); margin-bottom:25px; }
-</style>
+<title>EasyBill</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
-<header>EasyBill Pro</header>
-<nav>
-  <button data-page="accountsPage" class="active">Accounts</button>
-  <button data-page="customersPage">Customers</button>
-  <button data-page="productsPage">Products</button>
-  <button data-page="newInvoicePage">Create Invoice</button>
-  <button data-page="invoicesPage">Saved Invoices</button>
-</nav>
+<!-- Top Navigation Bar -->
+<div id="navbar">
+  <div id="nav-left">
+    <button onclick="goToPage(1)">Account</button>
+    <button onclick="goToPage(2)">Company</button>
+    <button onclick="goToPage(3)">Customers</button>
+    <button onclick="goToPage(4)">Items</button>
+    <button onclick="goToPage(5)">Create Invoice</button>
+    <button onclick="goToPage(6)">Invoices</button>
+    <button onclick="goToPage(7)">Invoice View</button>
+  </div>
+  <div id="nav-right">
+    <button id="darkModeToggle">🌙</button>
+  </div>
+</div>
 
-<main>
-<section id="accountsPage" class="active">
-<h2>Accounts</h2>
-<input type="text" id="accountName" placeholder="Business/Company Name">
-<input type="text" id="accountPAN" placeholder="PAN (Required)">
-<input type="text" id="accountAddress" placeholder="Address (Required)">
-<button id="addAccountBtn" class="add-btn">Add Account</button>
-<table id="accountsTable"><tr><th>Name</th><th>PAN</th><th>Address</th><th>Action</th></tr></table>
-</section>
+<!-- Page Container -->
+<div id="pageContainer">
 
-<section id="customersPage">
-<h2>Customers</h2>
-<input type="text" id="customerName" placeholder="Customer Name">
-<input type="text" id="customerPhone" placeholder="Phone">
-<input type="email" id="customerEmail" placeholder="Email">
-<input type="text" id="customerAddress" placeholder="Address">
-<input type="text" id="customerPAN" placeholder="PAN">
-<button id="addCustomerBtn" class="add-btn">Add Customer</button>
-<table id="customersTable"><tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th><th>Ledger</th></tr></table>
-</section>
+  <!-- Page 1: Account Creation -->
+  <div class="page active">
+    <h2>Create or Select Account</h2>
+    <input type="text" id="username" placeholder="Enter Username">
+    <button onclick="createAccount()">Continue</button>
+  </div>
 
-<section id="productsPage">
-<h2>Products / Stock</h2>
-<input type="text" id="productName" placeholder="Product Name">
-<input type="number" id="productPrice" placeholder="Unit Price">
-<input type="number" id="productStock" placeholder="Stock Quantity">
-<input type="date" id="productExpiry">
-<button id="addProductBtn" class="add-btn">Add Product</button>
-<table id="productsTable"><tr><th>Name</th><th>Price</th><th>Stock</th><th>Expiry</th><th>Action</th></tr></table>
-</section>
+  <!-- Page 2: Company Details -->
+  <div class="page">
+    <h2>Company Details</h2>
+    <input type="text" id="companyName" placeholder="Company Name"><br>
+    <input type="text" id="companyPan" placeholder="Company PAN"><br>
+    <input type="text" id="companyAddress" placeholder="Company Address"><br>
+    <input type="text" id="companyContact" placeholder="Company Contact"><br>
+    <label>Upload Company Logo:</label><br>
+    <input type="file" id="companyLogo" accept="image/*"><br>
+    <img id="logoPreview" style="max-width:120px; margin-top:10px; display:none;"><br>
+    <button onclick="saveCompany()">Save & Continue</button>
+    <button class="nav-btn" onclick="goBack()">Back</button>
+  </div>
 
-<section id="newInvoicePage">
-<h2>Create Invoice</h2>
-<label>Upload Logo:</label>
-<input type="file" id="invoiceLogo" accept="image/*">
-<label>Customer:</label>
-<select id="invoiceCustomer"></select>
-<label><input type="checkbox" id="enableDiscount" checked> Enable Discount</label>
-<label>Discount (%): <input type="number" id="invoiceDiscount" value="0"></label>
-<label><input type="checkbox" id="enableVAT" checked> Enable VAT</label>
-<label>Product:</label>
-<select id="invoiceProduct"></select>
-<label>Quantity:</label>
-<input type="number" id="invoiceQty" placeholder="Quantity">
-<p id="stockInfo" style="font-weight:bold;color:#e74c3c;"></p>
-<button id="addInvoiceItemBtn" class="add-btn">Add Item</button>
-<table id="invoiceItems"><tr><th>SN</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Action</th></tr></table>
-<button id="saveInvoiceBtn" class="add-btn">Save Invoice</button>
-</section>
+  <!-- Page 3: Customers -->
+  <div class="page">
+    <h2>Customers</h2>
+    <input type="text" id="custName" placeholder="Customer Name"><br>
+    <input type="text" id="custContact" placeholder="Contact No"><br>
+    <input type="text" id="custPan" placeholder="Customer PAN"><br>
+    <input type="text" id="custEmail" placeholder="Customer Email"><br>
+    <input type="text" id="custAddress" placeholder="Customer Address"><br>
+    <button onclick="addCustomer()">Add Customer</button>
+    <div id="customerList"></div>
+    <div id="ledgerView"></div>
+    <button class="nav-btn" onclick="goBack()">Back</button>
+    <button class="nav-btn" onclick="goNext()">Next</button>
+  </div>
 
-<section id="invoicesPage">
-<h2>Saved Invoices</h2>
-<div id="invoicesContainer"></div>
-</section>
+  <!-- Page 4: Items -->
+  <div class="page">
+    <h2>Items</h2>
+    <input type="text" id="itemName" placeholder="Item Name"><br>
+    <input type="number" id="itemStock" placeholder="Stock"><br>
+    <input type="number" id="itemPrice" placeholder="Unit Price"><br>
+    <input type="date" id="itemExpiry"><br>
+    <button onclick="addItem()">Add Item</button>
+    <div id="itemList"></div>
+    <button class="nav-btn" onclick="goBack()">Back</button>
+    <button class="nav-btn" onclick="goNext()">Next</button>
+  </div>
 
-<section id="invoiceView"></section>
-<section id="ledgerView"></section>
+  <!-- Page 5: Create Invoice -->
+  <div class="page">
+    <h2>Create Invoice</h2>
+    <select id="invoiceCustomer"></select><br>
+    <label><input type="checkbox" id="enableVat"> Enable VAT</label><br>
+    <input type="number" id="discountRate" placeholder="Discount %"><br>
 
-<script>
-const navButtons = document.querySelectorAll('nav button');
-navButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    navButtons.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    showPage(btn.dataset.page);
-  });
-});
-function showPage(id) {
-  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('invoiceView').style.display='none';
-  document.getElementById('ledgerView').style.display='none';
-  document.getElementById(id).classList.add('active');
-}
+    <h3>Add Items</h3>
+    <select id="invoiceItem"></select>
+    <input type="number" id="invoiceQty" placeholder="Quantity">
+    <button onclick="addInvoiceItem()">Add Item</button>
+    <div id="invoiceItemsList"></div>
 
-let accounts=JSON.parse(localStorage.getItem('accounts')||'[]');
-let currentAccountIndex=0;
-let customers=[], products=[], invoices=[], invoiceItems=[], invoiceLogo=null;
+    <button onclick="createInvoice()">Save Invoice</button>
+    <button class="nav-btn" onclick="goBack()">Back</button>
+    <button class="nav-btn" onclick="goNext()">Next</button>
+  </div>
 
-function saveCurrentAccountData(){
-  if(accounts.length===0) return;
-  accounts[currentAccountIndex].customers=customers;
-  accounts[currentAccountIndex].products=products;
-  accounts[currentAccountIndex].invoices=invoices;
-  localStorage.setItem('accounts',JSON.stringify(accounts));
-}
+  <!-- Page 6: Invoices List -->
+  <div class="page">
+    <h2>Invoices</h2>
+    <div id="invoiceList"></div>
+    <button class="nav-btn" onclick="goBack()">Back</button>
+    <button class="nav-btn" onclick="goNext()">Next</button>
+  </div>
 
-function renderAccounts(){
-  const table=document.getElementById('accountsTable'); 
-  table.innerHTML='<tr><th>Name</th><th>PAN</th><th>Address</th><th>Action</th></tr>';
-  accounts.forEach((acc,i)=>{
-    const row=table.insertRow();
-    row.insertCell(0).innerText=acc.name; 
-    row.insertCell(1).innerText=acc.pan; 
-    row.insertCell(2).innerText=acc.address;
-    const action=row.insertCell(3);
-    const switchBtn=document.createElement('button'); 
-    switchBtn.innerText='Switch'; 
-    switchBtn.className='add-btn';
-    switchBtn.onclick=()=>{ currentAccountIndex=i; loadCurrentAccount(); renderAccounts(); showPage('customersPage'); };
-    const deleteBtn=document.createElement('button'); 
-    deleteBtn.innerText='Delete'; 
-    deleteBtn.className='delete-btn';
-    deleteBtn.onclick=()=>{ if(confirm('Delete this account?')){ accounts.splice(i,1); localStorage.setItem('accounts',JSON.stringify(accounts)); if(currentAccountIndex>=accounts.length) currentAccountIndex=0; if(accounts.length>0) loadCurrentAccount(); renderAccounts(); } };
-    action.appendChild(switchBtn); action.appendChild(deleteBtn);
-  });
-}
-function addAccount(){
-  const name=document.getElementById('accountName').value.trim();
-  const pan=document.getElementById('accountPAN').value.trim();
-  const addr=document.getElementById('accountAddress').value.trim();
-  if(!name||!pan||!addr){ alert('All fields required'); return; }
-  accounts.push({name,pan,address:addr,customers:[],products:[],invoices:[]});
-  localStorage.setItem('accounts',JSON.stringify(accounts));
-  document.getElementById('accountName').value=''; 
-  document.getElementById('accountPAN').value=''; 
-  document.getElementById('accountAddress').value='';
-  renderAccounts();
-}
-document.getElementById('addAccountBtn').addEventListener('click', addAccount);
+  <!-- Page 7: Invoice View -->
+  <div class="page">
+    <h2>Invoice View</h2>
+    <div id="invoiceView"></div>
+    <button id="saveInvoiceView">💾 Save as Image</button>
+    <button id="printInvoiceView">🖨️ Print Invoice</button>
+    <button class="nav-btn" onclick="goBack()">Back</button>
+  </div>
 
-function loadCurrentAccount(){
-  if(accounts.length===0) return;
-  customers=accounts[currentAccountIndex].customers||[];
-  products=accounts[currentAccountIndex].products||[];
-  invoices=accounts[currentAccountIndex].invoices||[];
-  updateCustomerList(); updateCustomerDropdown(); updateProductList(); updateProductDropdown(); renderInvoices();
-}
+</div>
 
-function addCustomer(){
-  const name=document.getElementById('customerName').value.trim();
-  if(!name){alert('Customer name required'); return;}
-  const cust={name,phone:document.getElementById('customerPhone').value.trim(),email:document.getElementById('customerEmail').value.trim(),address:document.getElementById('customerAddress').value.trim(),pan:document.getElementById('customerPAN').value.trim()};
-  customers.push(cust); saveCurrentAccountData(); updateCustomerList(); updateCustomerDropdown(); alert('Customer Added!');
-}
-document.getElementById('addCustomerBtn').addEventListener('click', addCustomer);
-function updateCustomerDropdown(){
-  const sel=document.getElementById('invoiceCustomer'); sel.innerHTML='';
-  customers.forEach(c=>{ const opt=document.createElement('option'); opt.text=c.name; sel.add(opt); });
-}
-function updateCustomerList(){
-  const table=document.getElementById('customersTable'); table.innerHTML='<tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>PAN</th><th>Action</th><th>Ledger</th></tr>';
-  customers.forEach((c,i)=>{
-    const row=table.insertRow();
-    row.insertCell(0).innerText=c.name; row.insertCell(1).innerText=c.phone;
-    row.insertCell(2).innerText=c.email; row.insertCell(3).innerText=c.address;
-    row.insertCell(4).innerText=c.pan; 
-    const action=row.insertCell(5);
-    const delBtn=document.createElement('button'); delBtn.innerText='Delete'; delBtn.className='delete-btn'; delBtn.onclick=()=>{customers.splice(i,1); saveCurrentAccountData(); updateCustomerList(); updateCustomerDropdown();}
-    action.appendChild(delBtn);
-
-    const ledgerCell=row.insertCell(6);
-    const ledgerBtn=document.createElement('button'); ledgerBtn.innerText='View Ledger'; ledgerBtn.className='add-btn';
-    ledgerBtn.onclick=()=>{showCustomerLedger(i);}; ledgerCell.appendChild(ledgerBtn);
-  });
-}
-
-// Ledger
-function showCustomerLedger(index){
-  const cust = customers[index];
-  const ledgerSection = document.getElementById('ledgerView');
-  let html = `<h2>Ledger for ${cust.name}</h2>`;
-  const custInvoices = invoices.filter(inv => inv.customer.name === cust.name);
-  let totalDue = 0;
-  html += `<table style='width:100%; border-collapse:collapse;'><tr><th>#</th><th>Date</th><th>Total</th></tr>`;
-  custInvoices.forEach((inv,i)=>{
-    html += `<tr style='background:${i%2===0?'#f9f9f9':'#fff'};'><td>${i+1}</td><td>${new Date(inv.date).toLocaleDateString()}</td><td>${inv.total.toFixed(2)}</td></tr>`;
-    totalDue += inv.total;
-  });
-  html += `</table><h3>Total Due: ${totalDue.toFixed(2)}</h3>`;
-  html += `<button class='add-btn' id='ledgerBackBtn'>Back</button>`;
-  ledgerSection.innerHTML = html;
-  ledgerSection.style.display='block';
-  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('ledgerBackBtn').addEventListener('click', ()=>{ledgerSection.style.display='none'; showPage('customersPage');});
-}
-
-// INIT
-if(accounts.length>0) loadCurrentAccount(); renderAccounts();
-</script>
+<script src="script.js"></script>
 </body>
 </html>
