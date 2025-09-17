@@ -1,0 +1,229 @@
+/* Body & Container */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background: #eef2f7;
+  color: #333;
+  font-size: 16px;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+#pageContainer {
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(-45deg, #6a11cb, #2575fc, #f953c6, #ff7a18);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  transition: background 0.5s;
+}
+
+/* Gradient Background Animation */
+@keyframes gradientBG {
+  0% {background-position:0% 50%;}
+  50% {background-position:100% 50%;}
+  100% {background-position:0% 50%;}
+}
+
+/* Page */
+.page {
+  display: none;
+  padding: 25px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+  animation: fadeIn 0.5s ease;
+  opacity:0;
+  transform: translateY(15px);
+  transition: all 0.5s;
+}
+.page.active {
+  display: block;
+  opacity:1;
+  transform: translateY(0);
+}
+@keyframes fadeIn {
+  0% {opacity:0; transform: translateY(15px);}
+  100% {opacity:1; transform: translateY(0);}
+}
+
+/* Headers */
+h2 {
+  font-size: 2.4em;
+  color: #2575fc;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.12);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Navbar */
+#navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  padding: 12px 15px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  border-radius: 0 0 20px 20px;
+}
+#navbar button {
+  background: white;
+  color: #333;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1em;
+  transition: all 0.3s;
+}
+#navbar button.active {
+  background: #2575fc;
+  color: white;
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+}
+#navbar button:hover {
+  transform: scale(1.1);
+}
+
+/* Inputs & Buttons */
+input, select, textarea {
+  margin: 10px 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 2px 3px 12px rgba(0,0,0,0.08);
+  transition: 0.3s;
+  color: #333;
+  background: #fff;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 12px rgba(37,117,252,0.25);
+  outline: none;
+}
+button {
+  margin: 12px 0;
+  padding: 14px 22px;
+  border-radius: 16px;
+  border: none;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+/* Cards */
+.card {
+  background: linear-gradient(135deg, #ffffff, #f0f4ff);
+  margin: 12px 0;
+  padding: 16px;
+  border-radius: 16px;
+  border-left: 6px solid #2575fc;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: floatIn 0.6s forwards;
+}
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.2s; }
+.card:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes floatIn {
+  0% {opacity:0; transform: translateY(20px);}
+  100% {opacity:1; transform: translateY(0);}
+}
+
+/* Ledger Status */
+.ledger-status-Paid { color: green; font-weight:bold; }
+.ledger-status-Half\ Paid { color: orange; font-weight:bold; }
+.ledger-status-Not\ Paid { color: red; font-weight:bold; }
+
+/* Invoice View */
+#invoiceView table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  text-align: center;
+}
+#invoiceView th, #invoiceView td {
+  border: 1px solid #2575fc;
+  padding: 8px;
+}
+#invoiceView tr:nth-child(even) {
+  background: #f0f4ff;
+}
+
+/* Status Radio Buttons */
+#invoiceView .status-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+#invoiceView .status-container label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background: #121212;
+  color: #fff;
+}
+body.dark-mode #pageContainer {
+  background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #3a1c71);
+}
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+body.dark-mode button {
+  background: linear-gradient(to right, #444, #666);
+  color: #fff;
+}
+body.dark-mode #navbar button {
+  background: #555;
+  color: #fff;
+}
+body.dark-mode #navbar button.active {
+  background: #2575fc;
+  color: white;
+}
+body.dark-mode .card {
+  background: #1f1f1f;
+  border-left: 6px solid #2575fc;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+body.dark-mode #invoiceView table {
+  border-color: #888;
+}
+body.dark-mode #invoiceView th {
+  background: #333;
+  color: #fff;
+}
+body.dark-mode #invoiceView td {
+  color: #fff;
+}
+body.dark-mode #invoiceView tr:nth-child(even) {
+  background: #222;
+}
